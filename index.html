@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 14px Helvetica, Arial;
+      }
+      form {
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+      form input {
+        border: 0;
+        padding: 10px;
+        margin-right: 0.5%;
+      }
+      form button {
+        background: rgb(130, 224, 255);
+        border: none;
+        padding: 10px;
+      }
+      #app {
+        display: flex;
+      }
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messages li {
+        padding: 5px 10px;
+      }
+      #messages li:nth-child(odd) {
+        background: #eee;
+      }
+      .pane-left {
+        flex-grow: 1;
+      }
+      .pane-right {
+        min-width: 200px;
+        width: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="pane-left">
+        <label for="answerer">回答者</label>
+        <select id="answerer">
+          <option value="1">aaa</option>
+          <option value="2">bbb</option>
+        </select>
+      </div>
+      <div class="pane-right">
+        <ul id="messages">
+          <li v-for="message in messages">{{ message }}</li>
+        </ul>
+        <form action="">
+          <input id="m" autocomplete="off" v-model="textInput" />
+          <button @click.prevent="sendMessage">Send</button>
+        </form>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+      const socket = io("http://localhost:3000");
+      const app = new Vue({
+        el: "#app",
+        data: {
+          textInput: "",
+          messages: [],
+        },
+        methods: {
+          sendMessage() {
+            socket.emit("chat message", this.textInput);
+            this.textInput = "";
+          },
+        },
+        mounted() {
+          socket.on("chat message", (msg) => {
+            this.messages.push(msg);
+          });
+        },
+      });
+    </script>
+  </body>
+</html>
