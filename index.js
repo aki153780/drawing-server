@@ -33,6 +33,10 @@ io.on("connection", (socket) => {
   });
   socket.on("register name", (name) => {
     players.set(socket.id, name);
+    io.emit("players changed", Array.from(players));
+  });
+  socket.on("drawer changed", (drawer) => {
+    io.emit("drawer changed", drawer);
   });
   socket.on("chat message", (msg) => {
     io.emit("chat message", msg);

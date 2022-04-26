@@ -55,9 +55,10 @@
     <div id="app">
       <div class="pane-left">
         <label for="answerer">回答者</label>
-        <select id="answerer">
-          <option value="1">aaa</option>
-          <option value="2">bbb</option>
+        <select id="answerer" :value="selectedDrawer" @change="selectDrawer">
+          <option v-for="[key, value] in players" :key="key" :value="key">
+            {{value ? value : key}}
+          </option>
         </select>
       </div>
       <div class="pane-right">
@@ -79,16 +80,27 @@
         data: {
           textInput: "",
           messages: [],
+          players: [],
+          selectedDrawer: "",
         },
         methods: {
           sendMessage() {
             socket.emit("chat message", this.textInput);
             this.textInput = "";
           },
+          selectDrawer(e) {
+            console.log(e.target.value);
+            this.selectedDrawer = e.target.value;
+            socket.emit("drawer changed", this.selectedDrawer);
+          },
         },
         mounted() {
           socket.on("chat message", (msg) => {
             this.messages.push(msg);
+          });
+          socket.on("players changed", (newPlayers) => {
+            this.players = newPlayers;
+            console.log(newPlayers);
           });
         },
       });
