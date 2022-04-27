@@ -99,7 +99,7 @@
             this.messages.push(msg);
           });
           socket.on("players changed", (newPlayers) => {
-            this.players = newPlayers;
+            this.players = newPlayers.filter((player) => player[0] !== socket.id);
             console.log(newPlayers);
           });
         },

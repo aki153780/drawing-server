@@ -1,19 +1,5 @@
 const app = require("express")();
 const server = require("http").Server(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "http://localhost:8080",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
-    credentials: true,
-  },
-});
-const players = new Map();
-
-server.listen(3000, () => {
-  console.log("listening on *:3000");
-});
-
 app.get("/", (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header(
@@ -23,13 +9,29 @@ app.get("/", (req, res) => {
   res.header("Access-Control-Allow-Methods", "PUT, DELETE, OPTIONS");
   res.sendFile(__dirname + "/index.html");
 });
+server.listen(3000, () => {
+  console.log("listening on *:3000");
+});
 
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true,
+  },
+});
+const players = new Map();
 io.on("connection", (socket) => {
   socket.emit("chat message", "ようそこチャットアプリへ");
   socket.broadcast.emit("chat message", "新しいユーザが接続しました。");
+  players.set(socket.id, socket.id);
+  socket.emit("players changed", Array.from(players));
   console.log(socket.id);
   socket.on("disconnect", () => {
-    io.emit("chat message", "あるユーザの接続が切れました");
+    console.log("退室したユーザー", socket.id);
+    players.delete(socket.id);
+    io.emit("players changed", Array.from(players));
   });
   socket.on("register name", (name) => {
     players.set(socket.id, name);
