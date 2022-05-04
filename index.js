@@ -55,4 +55,10 @@ io.on("connection", (socket) => {
   socket.on("delete all", () => {
     io.emit("delete all");
   });
+  socket.on("propose answer", () => {
+    io.emit("stop drawing");
+  });
+  socket.on("failed answering", () => {
+    io.emit("failed answering");
+  });
 });
